@@ -36,7 +36,10 @@ public class ClockUtility implements IPiPlugApplication {
 
     @Override
     public void suspend(IPiPlugServices services) {
-	job.stop();
+	if (null != job) {
+	    job.stop();
+	    job = null;
+	}
     }
 
     @Override
