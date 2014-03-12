@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Display;
 public class ClockFace extends Canvas implements PaintListener, Runnable {
 
     private static final double TWO_PI = 2.0 * Math.PI;
-    private Color black, white, red;
+    private Color background, ticks, hoursHand, minutesHand, secondsHand, face;
     private int _diameter;
     private int _centerX;
     private int _centerY;
@@ -24,9 +24,12 @@ public class ClockFace extends Canvas implements PaintListener, Runnable {
     public ClockFace(Composite parent) {
 	super(parent, SWT.DOUBLE_BUFFERED);
 	addPaintListener(this);
-	black = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-	white = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-	red = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+	background = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
+	face = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
+	ticks = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
+	hoursHand = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
+	minutesHand = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
+	secondsHand = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
 	_now = Calendar.getInstance();
     }
 
@@ -34,8 +37,8 @@ public class ClockFace extends Canvas implements PaintListener, Runnable {
     public void paintControl(PaintEvent e) {
 
 	// prepare the clock face
-	e.gc.setBackground(black);
-	e.gc.setForeground(white);
+	e.gc.setBackground(background);
+	e.gc.setForeground(ticks);
 	e.gc.setAdvanced(true);
 	e.gc.setAntialias(SWT.ON);
 	Rectangle client = getClientArea();
@@ -51,7 +54,7 @@ public class ClockFace extends Canvas implements PaintListener, Runnable {
 
 	drawClockFace(e.gc);
 	drawClockHands(e.gc);
-	e.gc.setBackground(white);
+	e.gc.setBackground(ticks);
 	int circle = (int) (size * 0.02);
 	e.gc.fillOval(_centerX - circle, _centerY - circle, circle * 2,
 		circle * 2);
@@ -67,26 +70,31 @@ public class ClockFace extends Canvas implements PaintListener, Runnable {
 	// ... second hand
 	int handMax = (int) (_diameter * 0.44);
 	double fseconds = (seconds + (double) millis / 1000) / 60.0;
-	gc.setForeground(red);
+	gc.setForeground(secondsHand);
 	gc.setLineWidth(1);
 	drawRadius(gc, fseconds, 0, handMax);
 
 	// ... minute hand
 	handMax = _diameter / 3;
 	double fminutes = (minutes + fseconds) / 60.0;
-	gc.setForeground(white);
+	gc.setForeground(minutesHand);
 	gc.setLineWidth(2);
 	drawRadius(gc, fminutes, 0, handMax);
 
 	// ... hour hand
 	handMax = _diameter / 4;
-	gc.setForeground(white);
+	gc.setForeground(hoursHand);
 	gc.setLineWidth(4);
 	drawRadius(gc, (hours + fminutes) / 12.0, 0, handMax);
     }
 
     private void drawClockFace(GC gc) {
 	int radius = _diameter / 2;
+
+	gc.setBackground(face);
+	int dxmin = _centerX - radius - 15;
+	int dymin = _centerY - radius - 15;
+	gc.fillOval(dxmin, dymin, _diameter + 30, _diameter + 30);
 
 	// ... Draw the tick marks around the circumference.
 	for (int sec = 0; sec < 60; sec++) {
