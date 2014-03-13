@@ -7,7 +7,7 @@ import com.genuitec.piplug.api.IPiPlugApplication;
 import com.genuitec.piplug.api.IPiPlugServices;
 import com.genuitec.piplug.api.PiPlugAppBranding;
 
-public class ClockUtility implements IPiPlugApplication {
+public class ClockApplication implements IPiPlugApplication {
 
     private ClockComposite composite;
     private ClockJob job;

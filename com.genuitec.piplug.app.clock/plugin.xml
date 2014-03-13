@@ -4,7 +4,7 @@
    <extension
          point="com.genuitec.piplug.api.app">
       <piplug-app
-            class="com.genuitec.piplug.app.clock.ClockUtility"
+            class="com.genuitec.piplug.app.clock.ClockApplication"
             image="app.png"
             name="Clock">
       </piplug-app>
