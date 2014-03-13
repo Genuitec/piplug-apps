@@ -14,6 +14,16 @@ import org.eclipse.swt.widgets.Display;
 
 public class ClockFace extends Canvas implements PaintListener, Runnable {
 
+    // Colors of Clock
+    private static final int COLOR_TICKS = SWT.COLOR_WHITE;
+    private static final int COLOR_FACE = SWT.COLOR_BLACK;
+    private static final int COLOR_HAND_SECOND = SWT.COLOR_RED;
+    private static final int COLOR_HAND_MINUTE = SWT.COLOR_WHITE;
+    private static final int COLOR_HAND_HOUR = SWT.COLOR_WHITE;
+
+    // Style of Clock
+    private static IClockFaceStyle style = new ThinClockFace();
+
     private static final double TWO_PI = 2.0 * Math.PI;
     private Color background, ticks, hoursHand, minutesHand, secondsHand, face;
     private int _diameter;
@@ -24,12 +34,12 @@ public class ClockFace extends Canvas implements PaintListener, Runnable {
     public ClockFace(Composite parent) {
 	super(parent, SWT.DOUBLE_BUFFERED);
 	addPaintListener(this);
-	background = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-	face = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-	ticks = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-	hoursHand = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-	minutesHand = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-	secondsHand = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
+	background = Display.getCurrent().getSystemColor(COLOR_FACE);
+	face = Display.getCurrent().getSystemColor(COLOR_FACE);
+	ticks = Display.getCurrent().getSystemColor(COLOR_TICKS);
+	hoursHand = Display.getCurrent().getSystemColor(COLOR_HAND_HOUR);
+	minutesHand = Display.getCurrent().getSystemColor(COLOR_HAND_MINUTE);
+	secondsHand = Display.getCurrent().getSystemColor(COLOR_HAND_SECOND);
 	_now = Calendar.getInstance();
     }
 
@@ -68,23 +78,23 @@ public class ClockFace extends Canvas implements PaintListener, Runnable {
 	int millis = _now.get(Calendar.MILLISECOND);
 
 	// ... second hand
-	int handMax = (int) (_diameter * 0.44);
+	int handMax = (int) (_diameter * style.handSecondStopsAt());
 	double fseconds = (seconds + (double) millis / 1000) / 60.0;
 	gc.setForeground(secondsHand);
-	gc.setLineWidth(1);
+	gc.setLineWidth(style.handSecondWidth());
 	drawRadius(gc, fseconds, 0, handMax);
 
 	// ... minute hand
-	handMax = _diameter / 3;
+	handMax = (int) (_diameter * style.handMinuteStopsAt());
 	double fminutes = (minutes + fseconds) / 60.0;
 	gc.setForeground(minutesHand);
-	gc.setLineWidth(2);
+	gc.setLineWidth(style.handMinuteWidth());
 	drawRadius(gc, fminutes, 0, handMax);
 
 	// ... hour hand
-	handMax = _diameter / 4;
+	handMax = (int) (_diameter * style.handHourStopsAt());
 	gc.setForeground(hoursHand);
-	gc.setLineWidth(4);
+	gc.setLineWidth(style.handHourWidth());
 	drawRadius(gc, (hours + fminutes) / 12.0, 0, handMax);
     }
 
@@ -98,15 +108,16 @@ public class ClockFace extends Canvas implements PaintListener, Runnable {
 
 	// ... Draw the tick marks around the circumference.
 	for (int sec = 0; sec < 60; sec++) {
-	    int tickStart;
+	    int tickStart = -1;
 	    if (sec % 5 == 0) {
-		gc.setLineWidth(6);
-		tickStart = (int) (radius * 0.83); // Draw long tick every 5.
-	    } else {
-		gc.setLineWidth(4);
-		tickStart = (int) (radius * 0.94); // Short tick mark.
+		gc.setLineWidth(style.largeTicksWidth());
+		tickStart = (int) (radius * style.largeTicksStartAt());
+	    } else if (style.smallTicksEnabled()) {
+		gc.setLineWidth(style.smallTicksWidth());
+		tickStart = (int) (radius * style.smallTicksStartAt());
 	    }
-	    drawRadius(gc, sec / 60.0, tickStart, radius);
+	    if (tickStart != -1)
+		drawRadius(gc, sec / 60.0, tickStart, radius);
 	}
     }
 
