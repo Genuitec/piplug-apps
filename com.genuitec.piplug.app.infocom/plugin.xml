@@ -4,7 +4,7 @@
    <extension
          point="com.genuitec.piplug.api.service">
       <piplug-service
-            name="Infocom Emulator Service">
+            name="Zork Emulator Framework">
       </piplug-service>
    </extension>
 
