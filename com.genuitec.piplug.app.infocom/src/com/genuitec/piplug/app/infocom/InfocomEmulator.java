@@ -37,14 +37,14 @@ public abstract class InfocomEmulator implements IPiPlugApplication {
     @Override
     public Composite prepare(IPiPlugServices services, Composite parentStack) {
 	composite = new InfocomComposite(parentStack);
-	engine = new InfocomEngine(services, composite,
-		new Path(gameFile).lastSegment());
 	return composite;
     }
 
     @Override
     public void resume(IPiPlugServices services) {
 	Bundle bundle = getBundle();
+	engine = new InfocomEngine(services, composite,
+		new Path(gameFile).lastSegment());
 	engine.start(bundle.getEntry(gameFile));
     }
 
